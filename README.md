@@ -1,4 +1,4 @@
-# audio_metadata
+# audio_metadata_extractor
 
 Extremely fast (Dart Language) and easy-to-use metadata extractor from mp3, m4a, m4bm, aac, mp4, flac audio files. Optimized for network operation (minimum number of file reads).
 
