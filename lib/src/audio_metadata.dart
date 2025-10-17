@@ -7,6 +7,8 @@ import 'package:audio_metadata_extractor/src/extensions/list_extension.dart';
 import 'package:audio_metadata_extractor/src/extensions/string_extension.dart';
 import 'package:audio_metadata_extractor/src/readers/http_random_access_file.dart';
 
+import 'riff_metadata/riff_metadata.dart';
+
 abstract class AudioMetadata {
   String? get trackName;
   String? get trackNo;
@@ -79,6 +81,8 @@ abstract class AudioMetadata {
       return await AacReader().read(file);
     } else if (FlacMetadata.isMyFileExt(fileExt)) {
       return await FlacMetadata.readFromRandomAccessFile(file);
+    } else if (RiffMetadata.isMyFileExt(fileExt)) {
+      return await RiffMetadata.readFromRandomAccessFile(file);
     } else {
       return null;
     }
