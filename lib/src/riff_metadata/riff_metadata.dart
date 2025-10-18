@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:audio_metadata_extractor/src/riff_metadata/riff_chunk.dart';
@@ -100,6 +101,9 @@ class RiffMetadata extends AudioMetadata {
         case 'ICRD':
           meta.date = await chunk.readDataString(file: file);
           break;
+        case 'YEAR':
+          meta.date ??= await chunk.readDataString(file: file);
+          break;
         case 'ICMT':
         case 'CMNT':
         case 'COMM':
@@ -121,6 +125,9 @@ class RiffMetadata extends AudioMetadata {
           break;
         case 'ICOP':
           meta.copyright = await chunk.readDataString(file: file);
+        case 'id3 ':
+          print('id3: ${chunk.length}');
+          break;
         default:
           print('unimplemented ${chunk.id}');
           break;
