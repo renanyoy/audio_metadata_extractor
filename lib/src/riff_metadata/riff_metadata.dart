@@ -10,37 +10,37 @@ import 'riff_audio_format.dart';
 // https://exiftool.org/TagNames/RIFF.html
 
 class RiffMetadata extends AudioMetadata {
-  final RiffAudioFormat? audioFormat;
-  final RiffRawlMeta? meta;
-  RiffMetadata({this.audioFormat, this.meta});
+  final RiffAudioFormat audioFormat;
+  final RiffRawlMeta meta;
+  RiffMetadata({required this.audioFormat, required this.meta});
   @override
-  String? get album => meta?.album;
+  String? get album => meta.album;
   @override
-  String? get firstArtists => meta?.artist;
+  String? get firstArtists => meta.artist;
   @override
   String? get secondArtists => null;
   @override
-  String? get composer => null;
+  String? get composer => meta.composer;
   @override
-  String? get date => meta?.date;
+  String? get date => meta.date;
   @override
-  String? get language => meta?.language;
+  String? get language => meta.language;
   @override
-  String? get lyrics => null;
+  String? get lyrics => meta.lyrics;
   @override
-  String? get trackName => meta?.title;
+  String? get trackName => meta.title;
   @override
-  String? get trackNo => meta?.trackNumber;
+  String? get trackNo => meta.trackNumber;
   @override
-  String? get genres => meta?.genre;
+  String? get genres => meta.genre;
   @override
-  String? get copyright => meta?.copyright;
+  String? get copyright => meta.copyright;
   @override
   String? get publisher => null;
   @override
-  List<int>? get coverData => meta?.cover;
+  List<int>? get coverData => meta.cover;
   @override
-  Duration? duration;
+  Duration? get duration => meta.duration;
   static Future<RiffMetadata?> readFromFile(File file) async {
     return readFromRandomAccessFile(await file.open());
   }
@@ -62,6 +62,10 @@ class RiffMetadata extends AudioMetadata {
             audioFormat = await RiffAudioFormat.fromFile(file, chunk.data);
             break;
           case 'data':
+            if (audioFormat != null) {
+              meta.computeDuration(
+                  size: chunk.length, audioFormat: audioFormat);
+            }
             break;
           case 'LIST':
             if (chunk.info == 'INFO') {
@@ -81,7 +85,7 @@ class RiffMetadata extends AudioMetadata {
       print('$error'.split('\n')[0]);
       return null;
     }
-    if (audioFormat == null && meta.isEmpty) return null;
+    if (audioFormat == null) return null;
     return RiffMetadata(audioFormat: audioFormat, meta: meta);
   }
 
@@ -109,6 +113,7 @@ class RiffRawlMeta {
   String? lyrics;
   String? publisher;
   List<int>? cover;
+  Duration? duration;
   bool get isEmpty =>
       title == null &&
       artist == null &&
@@ -123,7 +128,8 @@ class RiffRawlMeta {
       cover == null &&
       composer == null &&
       lyrics == null &&
-      publisher == null;
+      publisher == null &&
+      duration == null;
   Future<void> parseID3({
     required RandomAccessFile file,
     required RiffChunk chunk,
@@ -193,16 +199,12 @@ class RiffRawlMeta {
         case 'ICOP':
           copyright = await c.readDataString(file: file);
         case 'PRT1':
-          // part number
-          break;
+        // part number
         case 'PRT2':
-          // number of parts
-          break;
+        // number of parts
         case 'IKEY':
-          // keywords
-          break;
+        // keywords
         default:
-          print('unimplemented info chunk ${c.id}');
           break;
       }
       // TODO: fix it, why it doesn't work without it ????
@@ -211,5 +213,11 @@ class RiffRawlMeta {
       //
       position = c.end;
     }
+  }
+
+  void computeDuration(
+      {required int size, required RiffAudioFormat audioFormat}) {
+    duration ??= Duration(
+        milliseconds: (1000.0 * size / audioFormat.bytesPerSecond).toInt());
   }
 }

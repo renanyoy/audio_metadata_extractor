@@ -8,6 +8,7 @@ class RiffAudioFormat {
   int byteRate;
   int blockAlign;
   int bitsPerSample;
+  int get bytesPerSecond => blockAlign * sampleRate;
   RiffAudioFormat({
     required this.encoding,
     required this.numChannels,

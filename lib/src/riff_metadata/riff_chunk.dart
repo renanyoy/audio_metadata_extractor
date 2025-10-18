@@ -31,17 +31,15 @@ class RiffChunk {
   static Future<RiffChunk> from(
       {required RandomAccessFile file, required int position}) async {
     await file.setPosition(position);
-    {
-      final bid = await file.read(4);
-      final id = latin1.decode(bid);
-      final blength = await file.read(4);
-      final length = blength.buffer.asByteData().getUint32(0, Endian.little);
-      String? info;
-      if (containers.contains(id)) {
-        final binfo = await file.read(4);
-        info = latin1.decode(binfo);
-      }
-      return RiffChunk(id: id, info: info, position: position, length: length);
+    final bid = await file.read(4);
+    final id = latin1.decode(bid);
+    final blength = await file.read(4);
+    final length = blength.buffer.asByteData().getUint32(0, Endian.little);
+    String? info;
+    if (containers.contains(id)) {
+      final binfo = await file.read(4);
+      info = latin1.decode(binfo);
     }
+    return RiffChunk(id: id, info: info, position: position, length: length);
   }
 }
