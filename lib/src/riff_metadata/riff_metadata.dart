@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:audio_metadata_extractor/src/riff_metadata/riff_chunk.dart';
@@ -11,9 +10,9 @@ import 'riff_audio_format.dart';
 // https://exiftool.org/TagNames/RIFF.html
 
 class RiffMetadata extends AudioMetadata {
-  final RiffAudioFormat audioFormat;
+  final RiffAudioFormat? audioFormat;
   final RiffRawlMeta? meta;
-  RiffMetadata({required this.audioFormat, this.meta});
+  RiffMetadata({this.audioFormat, this.meta});
   @override
   String? get album => meta?.album;
   @override
@@ -39,7 +38,7 @@ class RiffMetadata extends AudioMetadata {
   @override
   String? get publisher => null;
   @override
-  List<int>? get coverData => null;
+  List<int>? get coverData => meta?.cover;
   @override
   Duration? duration;
   static Future<RiffMetadata?> readFromFile(File file) async {
@@ -54,87 +53,36 @@ class RiffMetadata extends AudioMetadata {
     }
     int position = riff.data;
     RiffAudioFormat? audioFormat;
-    RiffRawlMeta? meta;
-    while (position < riff.end) {
-      final chunk = await RiffChunk.from(file: file, position: position);
-      switch (chunk.id) {
-        case 'fmt ':
-          audioFormat = await RiffAudioFormat.fromFile(file, chunk.data);
-          break;
-        case 'data':
-          break;
-        case 'LIST':
-          if (chunk.info == 'INFO') {
-            meta = await parseInfoList(file: file, list: chunk);
-          }
-          break;
-        case 'INFO':
-          break;
-        default:
-          break;
+    final meta = RiffRawlMeta();
+    try {
+      while (position < riff.end) {
+        final chunk = await RiffChunk.from(file: file, position: position);
+        switch (chunk.id) {
+          case 'fmt ':
+            audioFormat = await RiffAudioFormat.fromFile(file, chunk.data);
+            break;
+          case 'data':
+            break;
+          case 'LIST':
+            if (chunk.info == 'INFO') {
+              await meta.parseInfoList(file: file, chunk: chunk);
+            }
+            break;
+          case 'id3 ':
+            await meta.parseID3(file: file, chunk: chunk);
+            break;
+          default:
+            print('unimplemented main chunk ${chunk.id}');
+            break;
+        }
+        position = chunk.end;
       }
-      position = chunk.end;
+    } catch (error) {
+      print('$error'.split('\n')[0]);
+      return null;
     }
-    if (audioFormat == null) return null;
+    if (audioFormat == null && meta.isEmpty) return null;
     return RiffMetadata(audioFormat: audioFormat, meta: meta);
-  }
-
-  static Future<RiffRawlMeta> parseInfoList(
-      {required RandomAccessFile file, required RiffChunk list}) async {
-    RiffRawlMeta meta = RiffRawlMeta();
-    int position = list.data;
-    while (position < list.end) {
-      final chunk = await RiffChunk.from(file: file, position: position);
-      print(
-          '${chunk.position - list.position} >> ${chunk.end - list.position} [${list.end - chunk.position}] "${chunk.id}" ${chunk.length}');
-      switch (chunk.id) {
-        case 'INAM':
-        case 'TITL':
-          meta.title ??= await chunk.readDataString(file: file);
-          break;
-        case 'IART':
-          meta.artist = await chunk.readDataString(file: file);
-          break;
-        case 'IPRD':
-          meta.album = await chunk.readDataString(file: file);
-          break;
-        case 'ICRD':
-          meta.date = await chunk.readDataString(file: file);
-          break;
-        case 'YEAR':
-          meta.date ??= await chunk.readDataString(file: file);
-          break;
-        case 'ICMT':
-        case 'CMNT':
-        case 'COMM':
-          meta.comment ??= await chunk.readDataString(file: file);
-          break;
-        case 'ITRK':
-        case 'TRCK':
-          meta.trackNumber ??= await chunk.readDataString(file: file);
-          break;
-        case 'ISFT':
-          meta.encoder = await chunk.readDataString(file: file);
-          break;
-        case 'IGNR':
-        case 'GENR':
-          meta.genre ??= await chunk.readDataString(file: file);
-          break;
-        case 'LANG':
-          meta.language = await chunk.readDataString(file: file);
-          break;
-        case 'ICOP':
-          meta.copyright = await chunk.readDataString(file: file);
-        case 'id3 ':
-          print('id3: ${chunk.length}');
-          break;
-        default:
-          print('unimplemented ${chunk.id}');
-          break;
-      }
-      position = chunk.end;
-    }
-    return meta;
   }
 
   static bool isMyFilename(String filename) {
@@ -157,4 +105,111 @@ class RiffRawlMeta {
   String? copyright;
   String? encoder;
   String? genre;
+  String? composer;
+  String? lyrics;
+  String? publisher;
+  List<int>? cover;
+  bool get isEmpty =>
+      title == null &&
+      artist == null &&
+      album == null &&
+      date == null &&
+      comment == null &&
+      trackNumber == null &&
+      language == null &&
+      copyright == null &&
+      encoder == null &&
+      genre == null &&
+      cover == null &&
+      composer == null &&
+      lyrics == null &&
+      publisher == null;
+  Future<void> parseID3({
+    required RandomAccessFile file,
+    required RiffChunk chunk,
+  }) async {
+    await file.setPosition(chunk.data);
+    final reader = ID3Reader();
+    final m = await reader.readEmbeded(file);
+    if (m == null) return;
+    album ??= m.album;
+    artist ??= m.firstArtists;
+    copyright ??= m.copyright;
+    date ??= m.date;
+    language ??= m.language;
+    title ??= m.trackName;
+    trackNumber ??= m.trackNo;
+    cover ??= m.coverData;
+    composer ??= m.composer;
+    lyrics ??= m.lyrics;
+    publisher ??= m.publisher;
+  }
+
+  Future<void> parseInfoList({
+    required RandomAccessFile file,
+    required RiffChunk chunk,
+  }) async {
+    int position = chunk.data;
+    while (position < chunk.end) {
+      final c = await RiffChunk.from(file: file, position: position);
+      print(
+          '${c.position - chunk.position} >> ${c.end - chunk.position} [${chunk.end - c.position}] "${c.id}" ${c.length}');
+      switch (c.id) {
+        case 'INAM':
+        case 'TITL':
+          title ??= await c.readDataString(file: file);
+          break;
+        case 'IART':
+          artist = await c.readDataString(file: file);
+          break;
+        case 'IPRD':
+          album = await c.readDataString(file: file);
+          break;
+        case 'ICRD':
+          date = await c.readDataString(file: file);
+          break;
+        case 'YEAR':
+          date ??= await c.readDataString(file: file);
+          break;
+        case 'ICMT':
+        case 'CMNT':
+        case 'COMM':
+          comment ??= await c.readDataString(file: file);
+          break;
+        case 'ITRK':
+        case 'TRCK':
+          trackNumber ??= await c.readDataString(file: file);
+          break;
+        case 'ISFT':
+          encoder = await c.readDataString(file: file);
+          break;
+        case 'IGNR':
+        case 'GENR':
+          genre ??= await c.readDataString(file: file);
+          break;
+        case 'LANG':
+          language = await c.readDataString(file: file);
+          break;
+        case 'ICOP':
+          copyright = await c.readDataString(file: file);
+        case 'PRT1':
+          // part number
+          break;
+        case 'PRT2':
+          // number of parts
+          break;
+        case 'IKEY':
+          // keywords
+          break;
+        default:
+          print('unimplemented info chunk ${c.id}');
+          break;
+      }
+      // TODO: fix it, why it doesn't work without it ????
+      await file.setPosition(c.data);
+      await file.read(c.length);
+      //
+      position = c.end;
+    }
+  }
 }

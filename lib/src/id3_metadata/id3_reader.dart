@@ -336,6 +336,40 @@ class ID3Reader {
     return durationMs != null ? Duration(milliseconds: durationMs) : null;
   }
 
+  Future<ID3Metadata?> readEmbeded(RandomAccessFile file) async {
+    final rawHeader = await file.read(headerSize);
+
+    if (latin1.decode(Uint8List.view(rawHeader.buffer, 0, 3)) !=
+        headerIdentifier) {
+      return null;
+    }
+    int version = rawHeader[3];
+    int revision = rawHeader[4];
+    // print("Version: $version, revision: $revision");
+    if (version == 0xFF || revision == 0xFF) {
+      return null;
+    }
+    int flags = rawHeader[5];
+    // The first bit (bit 7) in the ‘ID3 flags’ is indicating whether or not unsynchronisation is used (see section 5 for details); a set bit indicates usage.
+    // The second bit (bit 6) is indicating whether or not compression is used; a set bit indicates usage. Since no compression scheme has been decided yet, the ID3 decoder (for now) should just ignore the entire tag if the compression bit is set.
+
+    int size = parseIntWithSync(rawHeader, 6, true);
+    // print("Size: $size");
+    final buff = await file.read(size);
+
+    ID3Metadata? metadata;
+    switch (version) {
+      case 0x4:
+        metadata = await _parseID3version2_4(flags, buff);
+      case 0x3:
+        metadata = await _parseID3version2_3(flags, buff);
+
+      case 0x2:
+        metadata = await _parseID3version2(flags, buff);
+    }
+    return metadata;
+  }
+
   Future<ID3Metadata?> read(RandomAccessFile file) async {
     final rawHeader = await file.read(headerSize);
 
