@@ -76,13 +76,13 @@ class RiffMetadata extends AudioMetadata {
             await meta.parseID3(file: file, chunk: chunk);
             break;
           default:
-            print('unimplemented main chunk ${chunk.id}');
+            //print('unimplemented main chunk ${chunk.id}');
             break;
         }
         position = chunk.end;
       }
     } catch (error) {
-      print('$error'.split('\n')[0]);
+      //print('$error'.split('\n')[0]);
       return null;
     }
     if (audioFormat == null) return null;
@@ -138,17 +138,17 @@ class RiffRawlMeta {
     final reader = ID3Reader();
     final m = await reader.readEmbeded(file);
     if (m == null) return;
-    album ??= m.album;
-    artist ??= m.firstArtists;
-    copyright ??= m.copyright;
-    date ??= m.date;
-    language ??= m.language;
-    title ??= m.trackName;
-    trackNumber ??= m.trackNo;
-    cover ??= m.coverData;
-    composer ??= m.composer;
-    lyrics ??= m.lyrics;
-    publisher ??= m.publisher;
+    album = m.album ?? album;
+    artist = m.firstArtists ?? artist;
+    copyright = m.copyright ?? copyright;
+    date = m.date ?? date;
+    language = m.language ?? language;
+    title = m.trackName ?? title;
+    trackNumber = m.trackNo ?? trackNumber;
+    cover = m.coverData ?? cover;
+    composer = m.composer ?? composer;
+    lyrics = m.lyrics ?? lyrics;
+    publisher = m.publisher ?? publisher;
   }
 
   Future<void> parseInfoList({
@@ -158,8 +158,6 @@ class RiffRawlMeta {
     int position = chunk.data;
     while (position < chunk.end) {
       final c = await RiffChunk.from(file: file, position: position);
-      print(
-          '${c.position - chunk.position} >> ${c.end - chunk.position} [${chunk.end - c.position}] "${c.id}" ${c.length}');
       switch (c.id) {
         case 'INAM':
         case 'TITL':

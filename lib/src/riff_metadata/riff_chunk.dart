@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_charset_detector/flutter_charset_detector.dart';
+
 class RiffChunk {
   static const containers = {'RIFF', 'LIST'};
   final String id;
@@ -15,7 +17,7 @@ class RiffChunk {
     required this.position,
   });
   bool get isContainer => info != null;
-  int get data => position + (info != null ? 12 : 8);
+  int get data => position + (isContainer ? 12 : 8);
   int get end => position + 8 + ((length & 1) == 0 ? length : length + 1);
   Future<Uint8List> readData({required RandomAccessFile file}) async {
     await file.setPosition(data);
@@ -23,9 +25,16 @@ class RiffChunk {
   }
 
   Future<String> readDataString({required RandomAccessFile file}) async {
-    final data = await readData(file: file);
-    final s = latin1.decode(data);
-    return s.replaceAll('\x00', '').trim();
+    Uint8List d = await readData(file: file);
+    final i = d.indexOf(0);
+    if (i >= 0) {
+      d = d.sublist(0, i);
+    }
+    try {
+      final s = await CharsetDetector.autoDecode(d);
+      return s.string;
+    } catch (_) {}
+    return latin1.decode(d);
   }
 
   static Future<RiffChunk> from(

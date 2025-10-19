@@ -8,6 +8,7 @@
       "version": "0.0.4",
       "dependencies": [
         "charset",
+        "flutter_charset_detector",
         "http"
       ],
       "devDependencies": [
@@ -51,6 +52,17 @@
       "name": "lints",
       "version": "3.0.0",
       "dependencies": []
+    },
+    {
+      "name": "flutter_charset_detector",
+      "version": "5.0.0",
+      "dependencies": [
+        "flutter",
+        "flutter_charset_detector_android",
+        "flutter_charset_detector_darwin",
+        "flutter_charset_detector_platform_interface",
+        "flutter_charset_detector_web"
+      ]
     },
     {
       "name": "http",
@@ -301,6 +313,99 @@
       ]
     },
     {
+      "name": "analyzer",
+      "version": "6.4.1",
+      "dependencies": [
+        "_fe_analyzer_shared",
+        "collection",
+        "convert",
+        "crypto",
+        "glob",
+        "meta",
+        "package_config",
+        "path",
+        "pub_semver",
+        "source_span",
+        "watcher",
+        "yaml"
+      ]
+    },
+    {
+      "name": "flutter_charset_detector_web",
+      "version": "2.0.0",
+      "dependencies": [
+        "flutter",
+        "flutter_charset_detector_platform_interface",
+        "flutter_web_plugins"
+      ]
+    },
+    {
+      "name": "flutter_charset_detector_platform_interface",
+      "version": "1.1.0",
+      "dependencies": [
+        "flutter",
+        "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "flutter",
+      "version": "0.0.0",
+      "dependencies": [
+        "characters",
+        "collection",
+        "material_color_utilities",
+        "meta",
+        "sky_engine",
+        "vector_math"
+      ]
+    },
+    {
+      "name": "web",
+      "version": "1.1.0",
+      "dependencies": []
+    },
+    {
+      "name": "meta",
+      "version": "1.17.0",
+      "dependencies": []
+    },
+    {
+      "name": "http_parser",
+      "version": "4.1.1",
+      "dependencies": [
+        "collection",
+        "source_span",
+        "string_scanner",
+        "typed_data"
+      ]
+    },
+    {
+      "name": "string_scanner",
+      "version": "1.4.0",
+      "dependencies": [
+        "source_span"
+      ]
+    },
+    {
+      "name": "logging",
+      "version": "1.3.0",
+      "dependencies": []
+    },
+    {
+      "name": "web_socket",
+      "version": "0.1.6",
+      "dependencies": [
+        "web"
+      ]
+    },
+    {
+      "name": "crypto",
+      "version": "3.0.6",
+      "dependencies": [
+        "typed_data"
+      ]
+    },
+    {
       "name": "vm_service",
       "version": "14.3.1",
       "dependencies": []
@@ -320,11 +425,6 @@
         "source_maps",
         "stack_trace"
       ]
-    },
-    {
-      "name": "meta",
-      "version": "1.16.0",
-      "dependencies": []
     },
     {
       "name": "glob",
@@ -356,89 +456,15 @@
       "dependencies": []
     },
     {
-      "name": "string_scanner",
-      "version": "1.4.0",
-      "dependencies": [
-        "source_span"
-      ]
-    },
-    {
-      "name": "crypto",
-      "version": "3.0.6",
-      "dependencies": [
-        "typed_data"
-      ]
+      "name": "mime",
+      "version": "2.0.0",
+      "dependencies": []
     },
     {
       "name": "convert",
       "version": "3.1.2",
       "dependencies": [
         "typed_data"
-      ]
-    },
-    {
-      "name": "web",
-      "version": "1.1.0",
-      "dependencies": []
-    },
-    {
-      "name": "http_parser",
-      "version": "4.1.1",
-      "dependencies": [
-        "collection",
-        "source_span",
-        "string_scanner",
-        "typed_data"
-      ]
-    },
-    {
-      "name": "logging",
-      "version": "1.3.0",
-      "dependencies": []
-    },
-    {
-      "name": "web_socket",
-      "version": "0.1.6",
-      "dependencies": [
-        "web"
-      ]
-    },
-    {
-      "name": "mime",
-      "version": "2.0.0",
-      "dependencies": []
-    },
-    {
-      "name": "file",
-      "version": "7.0.1",
-      "dependencies": [
-        "meta",
-        "path"
-      ]
-    },
-    {
-      "name": "analyzer",
-      "version": "6.4.1",
-      "dependencies": [
-        "_fe_analyzer_shared",
-        "collection",
-        "convert",
-        "crypto",
-        "glob",
-        "meta",
-        "package_config",
-        "path",
-        "pub_semver",
-        "source_span",
-        "watcher",
-        "yaml"
-      ]
-    },
-    {
-      "name": "_fe_analyzer_shared",
-      "version": "67.0.0",
-      "dependencies": [
-        "meta"
       ]
     },
     {
@@ -454,6 +480,73 @@
       "version": "2.1.4",
       "dependencies": [
         "collection",
+        "meta"
+      ]
+    },
+    {
+      "name": "_fe_analyzer_shared",
+      "version": "67.0.0",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "flutter_web_plugins",
+      "version": "0.0.0",
+      "dependencies": [
+        "flutter"
+      ]
+    },
+    {
+      "name": "vector_math",
+      "version": "2.2.0",
+      "dependencies": []
+    },
+    {
+      "name": "sky_engine",
+      "version": "0.0.0",
+      "dependencies": []
+    },
+    {
+      "name": "material_color_utilities",
+      "version": "0.11.1",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
+      "name": "characters",
+      "version": "1.4.0",
+      "dependencies": []
+    },
+    {
+      "name": "file",
+      "version": "7.0.1",
+      "dependencies": [
+        "meta",
+        "path"
+      ]
+    },
+    {
+      "name": "flutter_charset_detector_darwin",
+      "version": "1.2.1",
+      "dependencies": [
+        "flutter",
+        "flutter_charset_detector_platform_interface"
+      ]
+    },
+    {
+      "name": "flutter_charset_detector_android",
+      "version": "3.1.1",
+      "dependencies": [
+        "flutter",
+        "flutter_charset_detector_platform_interface"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
         "meta"
       ]
     }
