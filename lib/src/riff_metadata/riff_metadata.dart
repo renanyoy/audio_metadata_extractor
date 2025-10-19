@@ -36,7 +36,7 @@ class RiffMetadata extends AudioMetadata {
   @override
   String? get copyright => meta.copyright;
   @override
-  String? get publisher => null;
+  String? get publisher => meta.publisher;
   @override
   List<int>? get coverData => meta.cover;
   @override
