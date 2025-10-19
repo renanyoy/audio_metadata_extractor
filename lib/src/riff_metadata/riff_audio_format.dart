@@ -30,4 +30,7 @@ class RiffAudioFormat {
     final list = await file.read(16);
     return fromData(list.buffer.asByteData());
   }
+
+  Duration duration({required int size}) =>
+      Duration(milliseconds: (1000.0 * size / bytesPerSecond).toInt());
 }

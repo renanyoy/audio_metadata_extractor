@@ -63,8 +63,7 @@ class RiffMetadata extends AudioMetadata {
             break;
           case 'data':
             if (audioFormat != null) {
-              meta.computeDuration(
-                  size: chunk.length, audioFormat: audioFormat);
+              meta.duration = audioFormat.duration(size: chunk.length);
             }
             break;
           case 'LIST':
@@ -211,11 +210,5 @@ class RiffRawlMeta {
       //
       position = c.end;
     }
-  }
-
-  void computeDuration(
-      {required int size, required RiffAudioFormat audioFormat}) {
-    duration ??= Duration(
-        milliseconds: (1000.0 * size / audioFormat.bytesPerSecond).toInt());
   }
 }
