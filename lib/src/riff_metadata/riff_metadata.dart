@@ -34,6 +34,8 @@ class RiffMetadata extends AudioMetadata {
   @override
   String? get genres => meta.genre;
   @override
+  String? get comments => meta.comment;
+  @override
   String? get copyright => meta.copyright;
   @override
   String? get publisher => meta.publisher;

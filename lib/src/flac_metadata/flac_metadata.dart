@@ -31,6 +31,9 @@ class FlacMetadata extends AudioMetadata {
   }
 
   @override
+  String? get comments => getText("COMMENT") ?? getText("COMMENTS");
+
+  @override
   String? get album => getText("ALBUM");
 
   @override

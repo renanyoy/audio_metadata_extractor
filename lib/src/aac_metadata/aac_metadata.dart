@@ -29,6 +29,9 @@ class AacMetadata extends AudioMetadata {
   //     ?.valueStr;
 
   @override
+  String? get comments => null;
+
+  @override
   String? get album => meta?.getText([aacAtomNameStrAlbum]);
 
   @override

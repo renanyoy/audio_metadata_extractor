@@ -21,7 +21,7 @@ abstract class AudioMetadata {
   String? get lyrics;
   String? get copyright;
   String? get publisher;
-
+  String? get comments;
   String? get genres;
   Duration? get duration;
   List<int>? get coverData;

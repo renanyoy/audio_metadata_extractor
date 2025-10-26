@@ -25,6 +25,9 @@ class ID3Metadata extends AudioMetadata {
       tagIds.mapFirst((tag) => findTag<ID3Text>(tag));
 
   @override
+  String? get comments => getText(["COMM"])?.value;
+
+  @override
   String? get album => getText(["TALB", "TOAL"])?.value;
 
   @override //, "TPE2", "TPE3", "TPE4"
